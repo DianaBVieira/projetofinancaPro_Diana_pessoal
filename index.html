@@ -592,7 +592,12 @@
             const key = getLedgerKey(appState.currentYear, appState.currentMonthIndex);
             initEmptyMonth(key);
 
-            let totalIncome = Object.values(appState.ledger[key].income).reduce((a,b) => a+b, 0);
+            // Exclui categorias de sobra manual do total de receitas para evitar dupla contagem com carryover automático
+            const _carryoverNames = ["sobra do mês anterior", "sobre mês anterior", "sobra mês anterior"];
+            let totalIncome = Object.entries(appState.ledger[key].income).reduce((acc, [c,v]) => {
+                if(appState.carryoverEnabled && _carryoverNames.includes(c.toLowerCase().trim())) return acc;
+                return acc + v;
+            }, 0);
             let totalExpenseBase = Object.values(appState.ledger[key].expense).reduce((a,b) => a+b, 0);
             let totalCardsMonth = appState.cards.reduce((acc, c) => acc + (c.values[appState.currentMonthIndex] || 0), 0);
             let totalExpense = totalExpenseBase + totalCardsMonth;
@@ -646,6 +651,9 @@
         function calculateCarryoverChain() {
             if(!appState.carryoverEnabled) return;
             
+            // Nomes que representam carryover (manual ou automático) — excluídos do cálculo para evitar dupla contagem
+            const carryoverNames = ["sobra do mês anterior", "sobre mês anterior", "sobra mês anterior"];
+            
             for(let i = 0; i < 11; i++) {
                 const kAtual = getLedgerKey(appState.currentYear, i);
                 const kProx = getLedgerKey(appState.currentYear, i + 1);
@@ -653,7 +661,11 @@
                 initEmptyMonth(kAtual);
                 initEmptyMonth(kProx);
                 
-                let totInc = Object.entries(appState.ledger[kAtual].income).reduce((acc, [c,v]) => acc + v, 0);
+                // Soma receitas EXCLUINDO qualquer categoria de sobra/carryover manual
+                let totInc = Object.entries(appState.ledger[kAtual].income).reduce((acc, [c,v]) => {
+                    if(carryoverNames.includes(c.toLowerCase().trim())) return acc;
+                    return acc + v;
+                }, 0);
                 let totExp = Object.values(appState.ledger[kAtual].expense).reduce((a,b)=>a+b, 0);
                 let totCard = appState.cards.reduce((acc, c) => acc + (c.values[i] || 0), 0);
                 
