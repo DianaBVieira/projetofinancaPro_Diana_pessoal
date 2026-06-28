@@ -1,0 +1,21 @@
+{
+  "short_name": "FinançasPro",
+  "name": "Planilha Inteligente Diana",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./planilha_de_gastos_inteligente%20DIANA.html",
+  "background_color": "#f8fafc",
+  "theme_color": "#059669",
+  "display": "standalone",
+  "orientation": "portrait"
+}
